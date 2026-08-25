@@ -2,7 +2,9 @@
 
 ### Graph-Powered Skill Gap & Job Recommendation System
 
-SkillGraph is a full-stack application that helps users identify suitable job roles based on their existing technical skills. It uses a graph database to establish relationships between students, skills, jobs, and required skills, enabling skill matching and skill-gap analysis.
+SkillGraph is a full-stack application that helps users identify suitable job roles based on their existing technical skills.
+
+The application uses a graph database to represent relationships between students, skills, jobs, and required skills. These relationships are used to calculate skill matches, recommend suitable jobs, and identify missing skills.
 
 ---
 
@@ -18,13 +20,63 @@ For each recommended job, the system provides:
 - Overall skill match percentage
 - Skills that are missing for the selected job
 
-The application demonstrates how graph database relationships can be used to build a skill-based job recommendation system.
+The project demonstrates how a graph database can be used to build a skill-based job recommendation and skill-gap analysis system.
+
+---
+
+## 🎯 Use Case
+
+Students and job seekers often know their current technical skills but may not know which job roles are the best match for their profile.
+
+SkillGraph solves this problem by:
+
+1. Identifying the skills associated with a student.
+2. Finding job roles and their required skills.
+3. Comparing the student's skills with job requirements.
+4. Calculating the percentage of matching skills.
+5. Ranking suitable job roles.
+6. Identifying skills that the student is missing.
+
+This helps users understand both their suitable career opportunities and the skills they need to improve.
+
+---
+
+## 🧠 Why a Graph Database?
+
+A graph database is suitable for SkillGraph because the core of the application is based on relationships.
+
+The system contains relationships such as:
+
+- Student → HAS_SKILL → Skill
+- Job → REQUIRES → Skill
+
+For example:
+
+Student
+   |
+   | HAS_SKILL
+   ↓
+ Skill
+   ↑
+   | REQUIRES
+   |
+  Job
+
+Using a graph model makes it natural to traverse these relationships and determine which jobs are connected to the skills a student already has.
+
+This approach is useful for:
+
+- Skill matching
+- Job recommendations
+- Skill-gap analysis
+- Relationship-based queries
+- Future expansion to more students, skills, and jobs
 
 ---
 
 ## ✨ Key Features
 
-- 👤 User skill profile analysis
+- 👤 Student skill profile analysis
 - 🔍 Skill-based job recommendations
 - 📊 Job match percentage calculation
 - 🎯 Best job match identification
@@ -53,7 +105,6 @@ The application demonstrates how graph database relationships can be used to bui
 
 ## 🏗️ System Architecture
 
-```text
                  ┌──────────────────────┐
                  │    React Frontend    │
                  │     SkillGraph UI    │
@@ -79,13 +130,44 @@ The application demonstrates how graph database relationships can be used to bui
                             │
                             ▼
                      Required Skills
-```
+
+---
+
+## 🕸️ Data Model
+
+The main entities and relationships are:
+
+┌──────────────┐
+│   Student    │
+└──────┬───────┘
+       │
+       │ HAS_SKILL
+       ▼
+┌──────────────┐
+│    Skill     │
+└──────▲───────┘
+       │
+       │ REQUIRES
+       │
+┌──────┴───────┐
+│     Job      │
+└──────────────┘
+
+### Main Nodes
+
+- Student – represents a student's profile.
+- Skill – represents a technical skill.
+- Job – represents a job role.
+
+### Main Relationships
+
+- HAS_SKILL – connects a student with their existing skills.
+- REQUIRES – connects a job with the skills required for that job.
 
 ---
 
 ## 🔄 Application Workflow
 
-```text
 Student Profile
       │
       ▼
@@ -103,7 +185,6 @@ Job Recommendation   Skill Gap
       │               │
       ▼               ▼
 Match Percentage   Have / Missing
-```
 
 ---
 
@@ -113,9 +194,9 @@ Match Percentage   Have / Missing
 
 The application currently demonstrates a user profile containing:
 
-- Java
-- SQL
-- Spring Boot
+Java
+SQL
+Spring Boot
 
 ### Job Recommendations
 
@@ -126,7 +207,7 @@ The application currently demonstrates a user profile containing:
 
 ### Skill Gap Analysis
 
-For **Full Stack Developer**:
+For Full Stack Developer:
 
 | Required Skill | Status |
 |---|---|
@@ -143,37 +224,74 @@ This allows users to understand which job roles best match their current skills 
 
 ### Test CognoDB Connection
 
-`GET /api/test/cognodb`
+GET /api/test/cognodb
+
+Example:
+
+http://localhost:8080/api/test/cognodb
+
+Expected response:
+
+CognoDB connection successful!
 
 ### Get Student Skills
 
-`GET /api/students/{name}/skills`
+GET /api/students/{name}/skills
 
 Example:
 
-`GET /api/students/Mounika/skills`
+http://localhost:8080/api/students/Mounika/skills
 
 ### Get Job Recommendations
 
-`GET /api/students/{name}/recommendations`
+GET /api/students/{name}/recommendations
 
 Example:
 
-`GET /api/students/Mounika/recommendations`
+http://localhost:8080/api/students/Mounika/recommendations
 
 ### Get Skill Gap
 
-`GET /api/students/{name}/job/{jobId}/skill-gap`
+GET /api/students/{name}/job/{jobId}/skill-gap
 
 Example:
 
-`GET /api/students/Mounika/job/{jobId}/skill-gap`
+http://localhost:8080/api/students/Mounika/job/2/skill-gap
+
+---
+
+## 🧾 Main Query Logic
+
+SkillGraph uses Cypher queries to work with relationships between students, skills, and jobs.
+
+### 1. Retrieve Student Skills
+
+The application finds the skills connected to a student through the HAS_SKILL relationship.
+
+### 2. Find Job Recommendations
+
+The application compares the student's existing skills with the skills required by available jobs.
+
+### 3. Calculate Skill Match
+
+The matching skills are counted and compared with the total number of skills required by a job.
+
+Match Percentage =
+(Matched Skills / Total Required Skills) × 100
+
+### 4. Identify Skill Gap
+
+For a selected job, the application compares the student's skills with the required skills and identifies:
+
+Have
+Missing
+
+The Cypher query logic used by the application is implemented in the backend source code.
 
 ---
 
 ## 📁 Project Structure
 
-```text
 SkillGraph/
 │
 ├── frontend/
@@ -191,6 +309,10 @@ SkillGraph/
 │   │   ├── java/
 │   │   │   └── com/skillgraph/
 │   │   │       └── skillgraph_backend/
+│   │   │           ├── SkillgraphBackendApplication.java
+│   │   │           └── config/
+│   │   │               ├── CognoDBConfig.java
+│   │   │               └── CognoDBTestController.java
 │   │   └── resources/
 │   │       └── application.properties
 │   │
@@ -200,86 +322,102 @@ SkillGraph/
 ├── mvnw
 ├── mvnw.cmd
 └── README.md
-```
 
 ---
 
-## ⚙️ Backend Setup
+# ⚙️ Backend Setup
 
-### 1. Clone the Repository
+## 1. Clone the Repository
 
-```bash
 git clone https://github.com/mounikajallela31/SkillGraph.git
 cd SkillGraph
-```
 
-### 2. Configure CognoDB
+## 2. Configure CognoDB
 
 Update the CognoDB connection details in:
 
-`src/main/resources/application.properties`
+src/main/resources/application.properties
 
 The application requires:
 
-- CognoDB URI
-- Username
-- Password
+CognoDB URI
+Username
+Password
 
-> **Security:** Never commit database passwords or other sensitive credentials to a public GitHub repository.
+> Security: Never commit database passwords, API keys, or other sensitive credentials to a public GitHub repository.
 
-### 3. Run the Spring Boot Backend
+## 3. Run the Spring Boot Backend
 
-Using the Maven Wrapper:
+From the project root:
 
-```bash
 mvnw spring-boot:run
-```
+
+On Windows, you can also use:
+
+mvnw.cmd spring-boot:run
 
 The backend runs on:
 
-`http://localhost:8080`
+http://localhost:8080
+
+Keep this terminal running while using the application.
 
 ---
 
-## 💻 Frontend Setup
+# 💻 Frontend Setup
 
 Open a new terminal and navigate to the frontend folder:
 
-```bash
 cd frontend
-```
 
-Install the required dependencies:
+Install dependencies:
 
-```bash
 npm install
-```
 
 Start the React development server:
 
-```bash
 npm run dev
-```
 
-The frontend will be available on:
+The frontend will be available at:
 
-`http://localhost:5173`
+http://localhost:5173
+
+Keep this terminal running while using the application.
 
 ---
 
-## 🧪 Testing
+# 🗄️ CognoDB Setup
+
+The application uses CognoDB as its graph database.
+
+The CognoDB connection details are configured in:
+
+src/main/resources/application.properties
+
+Configure the CognoDB URI, username, and password according to the CognoDB instance used for the project.
+
+After configuring the database and starting the Spring Boot backend, test the connection using:
+
+GET /api/test/cognodb
+
+Expected response:
+
+CognoDB connection successful!
+
+For security, database credentials should be stored using environment variables or secure configuration mechanisms when deploying the application.
+
+---
+
+# 🧪 Testing
 
 The application was tested using the following APIs.
 
 ### CognoDB Connection
 
-```text
 CognoDB connection successful!
-```
 
 ### Student Skills
 
-```json
 [
   {
     "skill": "Java"
@@ -291,11 +429,9 @@ CognoDB connection successful!
     "skill": "Spring Boot"
   }
 ]
-```
 
 ### Job Recommendations
 
-```json
 [
   {
     "job": "Full Stack Developer",
@@ -310,22 +446,40 @@ CognoDB connection successful!
     "matchPercentage": 60.0
   }
 ]
-```
 
 ### Skill Gap
 
 For the Full Stack Developer role:
 
-```text
 Java        → Have
 SQL         → Have
 Spring Boot → Have
 Git         → Missing
-```
 
 ---
 
-## 🎯 Use Cases
+# 🖥️ UI Screenshots
+
+Screenshots of the running SkillGraph application should be added to this section.
+
+Recommended screenshots:
+
+1. Main SkillGraph dashboard
+2. Student skills section
+3. Job recommendations
+4. Skill-gap analysis
+
+After uploading screenshots to the repository, use:
+
+![SkillGraph Dashboard](screenshots/dashboard.png)
+
+![Job Recommendations](screenshots/recommendations.png)
+
+![Skill Gap Analysis](screenshots/skill-gap.png)
+
+---
+
+# 🎯 Use Cases
 
 SkillGraph can be useful for:
 
@@ -339,7 +493,7 @@ SkillGraph can be useful for:
 
 ---
 
-## 🚀 Future Enhancements
+# 🚀 Future Enhancements
 
 Potential future improvements include:
 
@@ -355,22 +509,62 @@ Potential future improvements include:
 
 ---
 
-## 🔐 Security Note
+# 🔐 Security Note
 
-Sensitive credentials such as database passwords should be stored using environment variables or secure secret-management systems instead of committing them to source control.
+Sensitive credentials such as database passwords should be stored using environment variables or secure configuration mechanisms instead of committing them directly to source control.
 
 For production deployments, environment-specific configuration and secret management should be used.
 
 ---
 
-## 👩‍💻 Author
+# 🌐 Demo
 
-**Mounika Jallela**
+Hosted application:
+
+https://skill-graph-brown.vercel.app/
+
+---
+
+# 🎥 Screen Recording
+
+A short screen recording demonstrating the SkillGraph application should be submitted along with the assignment.
+
+The recording should demonstrate:
+
+1. Opening the SkillGraph application
+2. Student skill information
+3. Job recommendations
+4. Match percentage
+5. Skill-gap analysis
+6. CognoDB connection/API functionality
+
+---
+
+# 📦 Assignment Deliverables
+
+The project submission includes:
+
+- GitHub repository containing the complete source code
+- README with project overview and use case
+- Explanation of why a graph database is used
+- Data model and system architecture
+- CognoDB configuration and setup instructions
+- Main REST API endpoints
+- Query logic explanation
+- UI screenshots
+- Hosted application demo link
+- Short screen recording
+
+---
+
+# 👩‍💻 Author
+
+Mounika Jallela
 
 Java | Spring Boot | React | CognoDB
 
 ---
 
-## 📄 License
+# 📄 License
 
 This project was developed for learning, demonstration, and assessment purposes.
